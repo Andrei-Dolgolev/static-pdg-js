@@ -37,12 +37,35 @@ npm install esprima # (tested with 4.0.1)
 npm install escodegen # (tested with 1.14.2 and 2.0.0)
 ```
 
-To install graphviz (only for drawing graphs, not yet documented, please open an issue if interested)
+To install graphviz (for drawing AST, CFG, and PDG graphs)
 ```
 pip3 install graphviz
 On MacOS: install brew and then brew install graphviz
 On Linux: sudo apt-get install graphviz
 ```
+
+### Visualizing AST, CFG, and PDG
+
+The tool provides functionality to visualize the Abstract Syntax Tree (AST), Control Flow Graph (CFG), and Program Dependence Graph (PDG):
+
+```python
+from src.display_graph import draw_ast, draw_cfg, draw_pdg
+from src.build_pdg import get_data_flow
+
+# Parse and build PDG
+pdg = get_data_flow('your_file.js', benchmarks=dict())
+
+# Draw AST
+draw_ast(pdg, attributes=True, save_path="output_ast")
+
+# Draw CFG
+draw_cfg(pdg, attributes=True, save_path="output_cfg")
+
+# Draw PDG
+draw_pdg(pdg, attributes=True, save_path="output_pdg")
+```
+
+This will generate both DOT files and PDF visualizations of the graphs.
 
 ## Usage
 
