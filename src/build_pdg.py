@@ -26,13 +26,13 @@ import timeit
 import json
 from multiprocessing import Process, Queue
 
-import node as _node
-import build_ast
-import utility_df
-import control_flow
-import data_flow
-import scope as _scope
-import display_graph
+from . import node as _node
+from . import build_ast
+from . import utility_df
+from . import control_flow
+from . import data_flow
+from . import scope as _scope
+from . import display_graph
 
 # Builds the JS code from the AST, or not, to check for possible bugs in the AST building process.
 CHECK_JSON = utility_df.CHECK_JSON

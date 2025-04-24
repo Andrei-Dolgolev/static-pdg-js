@@ -6,6 +6,7 @@ Script to visualize JavaScript code as AST, CFG, and PDG graphs.
 import os
 import sys
 import argparse
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.build_pdg import get_data_flow
 from src.display_graph import draw_ast, draw_cfg, draw_pdg
 

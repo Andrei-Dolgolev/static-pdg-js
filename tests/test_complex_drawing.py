@@ -1,6 +1,8 @@
 import os
 import json
 import tempfile
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.extended_ast import ExtendedAst
 from src.display_graph import draw_ast, draw_cfg, draw_pdg
 from src import node as _node

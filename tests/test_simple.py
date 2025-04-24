@@ -1,6 +1,8 @@
 import os
 import json
 import tempfile
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.extended_ast import ExtendedAst
 
 def test_simple_js_parsing():
