@@ -33,7 +33,17 @@ def test_simple_js_parsing():
     
     # Create ExtendedAst object
     ast = ExtendedAst()
-    ast.ast = ast_json
+    ast.set_type(ast_json["type"])
+    ast.set_body(ast_json["body"])
+    ast.set_source_type(ast_json["sourceType"])
+    if "range" in ast_json:
+        ast.set_range(ast_json["range"])
+    if "comments" in ast_json:
+        ast.set_comments(ast_json["comments"])
+    if "tokens" in ast_json:
+        ast.set_tokens(ast_json["tokens"])
+    if "leadingComments" in ast_json:
+        ast.set_leading_comments(ast_json["leadingComments"])
     
     # Basic assertions
     assert ast.get_type() == "Program"
