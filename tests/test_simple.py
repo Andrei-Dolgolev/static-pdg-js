@@ -24,19 +24,19 @@ def test_simple_js_parsing():
     # Get path to parser.js relative to package
     parser_path = os.path.join(os.path.dirname(__file__), "..", "src", "parser.js")
     
-        # Parse JS to AST
-        os.system(f"node {parser_path} {js_file} {json_file}")
-        
-        # Read and parse the AST
-        with open(json_file) as f:
-            ast_json = json.load(f)
-        
-        # Create ExtendedAst object
-        ast = ExtendedAst()
-        ast.ast = ast_json
-        
-        # Basic assertions
-        assert ast.get_type() == "Program"
-        assert ast.get_source_type() == "module"
-        
-        # Temporary files will be cleaned up automatically when the context manager exits
+    # Parse JS to AST
+    os.system(f"node {parser_path} {js_file} {json_file}")
+    
+    # Read and parse the AST
+    with open(json_file) as f:
+        ast_json = json.load(f)
+    
+    # Create ExtendedAst object
+    ast = ExtendedAst()
+    ast.ast = ast_json
+    
+    # Basic assertions
+    assert ast.get_type() == "Program"
+    assert ast.get_source_type() == "module"
+    
+    # Temporary files will be cleaned up automatically when the context manager exits
