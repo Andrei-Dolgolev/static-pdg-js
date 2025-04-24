@@ -21,15 +21,15 @@ def test_simple_js_parsing():
         with open(js_file, "w") as f:
             f.write(js_code)
     
-    # Get path to parser.js relative to package
-    parser_path = os.path.join(os.path.dirname(__file__), "..", "src", "parser.js")
-    
-    # Parse JS to AST
-    os.system(f"node {parser_path} {js_file} {json_file}")
-    
-    # Read and parse the AST
-    with open(json_file) as f:
-        ast_json = json.load(f)
+        # Get path to parser.js relative to package
+        parser_path = os.path.join(os.path.dirname(__file__), "..", "src", "parser.js")
+        
+        # Parse JS to AST
+        os.system(f"node {parser_path} {js_file} {json_file}")
+        
+        # Read and parse the AST
+        with open(json_file) as f:
+            ast_json = json.load(f)
     
     # Create ExtendedAst object
     ast = ExtendedAst()
