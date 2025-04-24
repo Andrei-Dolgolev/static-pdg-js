@@ -20,7 +20,7 @@
 
 import logging
 
-import node as _node
+from . import node as _node
 
 """
 In the following,
