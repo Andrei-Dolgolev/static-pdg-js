@@ -6,7 +6,8 @@ setup(
     packages=find_packages(),
     install_requires=[
         "graphviz",
-        "esprima"
+        "esprima",
+        "pytest"  # Adding pytest as a requirement
     ],
     package_data={
         'src': ['parser.js'],
