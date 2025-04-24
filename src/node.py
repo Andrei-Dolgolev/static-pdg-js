@@ -36,7 +36,7 @@
 import logging
 import random
 
-import utility_df
+from . import utility_df
 
 EXPRESSIONS = ['AssignmentExpression', 'ArrayExpression', 'ArrowFunctionExpression',
                'AwaitExpression', 'BinaryExpression', 'CallExpression', 'ClassExpression',
