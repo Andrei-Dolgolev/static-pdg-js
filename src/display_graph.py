@@ -27,7 +27,7 @@
 
 import graphviz
 
-import node as _node
+from . import node as _node
 
 
 def append_leaf_attr(node, graph):
