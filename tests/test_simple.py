@@ -1,7 +1,7 @@
 import os
 import json
 import tempfile
-from src import ExtendedAst
+from src.extended_ast import ExtendedAst
 
 def test_simple_js_parsing():
     # Create a simple JS file
