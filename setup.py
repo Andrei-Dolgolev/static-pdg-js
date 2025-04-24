@@ -6,8 +6,12 @@ setup(
     packages=find_packages(),
     install_requires=[
         "graphviz",
-        "esprima"  # Assuming this is the Python binding for esprima
+        "esprima"
     ],
+    package_data={
+        'src': ['parser.js'],
+    },
+    include_package_data=True,
     description="JavaScript AST Analysis Tools",
     author="Your Name",
     author_email="your.email@example.com",
