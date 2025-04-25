@@ -104,8 +104,9 @@ def draw_ast(ast_nodes, attributes=False, save_path=None):
     if save_path is None:
         dot.view()
     else:
-        dot.render(save_path, view=False)
-        graphviz.render(filepath=save_path, engine='dot', format='eps')
+        # Render to both PDF and EPS formats
+        dot.render(save_path, view=False, format='pdf')
+        dot.render(save_path, view=False, format='eps')
     dot.clear()
 
 

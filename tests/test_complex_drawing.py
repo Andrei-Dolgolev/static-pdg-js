@@ -98,8 +98,10 @@ def test_complex_ast_drawing():
         # Check if the output files were created
         assert os.path.exists(f"{output_file}")
         assert os.path.exists(f"{output_file}.pdf")
+        assert os.path.exists(f"{output_file}.eps")
         
         # Print information about the generated files
         print(f"\nAST visualization files created:")
         print(f"- DOT file: {output_file}")
-        print(f"- PDF file: {output_file}.pdf")
+        print(f"- PDF file: {output_file}.pdf") 
+        print(f"- EPS file: {output_file}.eps")
