@@ -17,9 +17,9 @@
 """ Prints variables with their corresponding value. And logs whether an insecure API was used. """
 
 import logging
-import node as _node
-from js_operators import get_node_computed_value, get_node_value
-import utility_df
+import src.node as _node
+from src.js_operators import get_node_computed_value, get_node_value
+import src.utility_df as utility_df
 
 INSECURE = ['document.write']
 DISPLAY_VAR = utility_df.DISPLAY_VAR  # To display the variables' value or not

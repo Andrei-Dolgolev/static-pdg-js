@@ -29,8 +29,8 @@ import json
 import os
 import subprocess
 
-import node as _node
-import extended_ast as _extended_ast
+import src.node as _node
+import src.extended_ast as _extended_ast
 
 SRC_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 

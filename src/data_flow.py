@@ -25,13 +25,13 @@
 import logging
 import copy
 
-import node as _node
-import js_reserved
-import scope as _scope
-import utility_df
-from build_ast import save_json, get_code
-from pointer_analysis import map_var2value, compute_update_expression, display_values
-from js_operators import get_node_computed_value, get_node_value
+import src.node as _node
+import src.js_reserved as js_reserved
+import src.scope as _scope
+import src.utility_df as utility_df
+from src.build_ast import save_json, get_code
+from src.pointer_analysis import map_var2value, compute_update_expression, display_values
+from src.js_operators import get_node_computed_value, get_node_value
 
 # To print the exceptions encountered while building the PDG, or not
 PDG_EXCEPT = utility_df.PDG_EXCEPT

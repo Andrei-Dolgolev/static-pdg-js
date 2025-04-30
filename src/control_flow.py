@@ -21,7 +21,7 @@
 # Note: slightly improved from HideNoSeek
 
 
-import node as _node
+import src.node as _node
 
 
 def link_expression(node, node_parent):

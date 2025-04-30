@@ -27,7 +27,7 @@
 
 import graphviz
 
-from . import node as _node
+import src.node as _node
 
 
 def append_leaf_attr(node, graph):
@@ -86,27 +86,108 @@ def produce_ast(ast_nodes, attributes, graph=graphviz.Graph(comment='AST represe
     return graph
 
 
-def draw_ast(ast_nodes, attributes=False, save_path=None):
-    """
-        Plot an AST.
+def _produce_ast_limited(ast_nodes, attributes, max_depth, current_depth, graph):
+    """Internal helper to produce AST limited to a certain depth."""
+    graph.attr('node', color='black', style='filled', fillcolor='white')
+    graph.node(str(ast_nodes.id), ast_nodes.name)
 
-        -------
-        Parameters:
-        - ast_nodes: Node
-            Output of ast_to_ast_nodes(<ast>, ast_nodes=Node('Program')).
-        - save_path: str
-            Path of the file to store the AST in.
-        - attributes: bool
-            Whether to display the leaf attributes or not. Default: False.
+    # Stop recursion if we've reached the maximum depth
+    if max_depth is not None and current_depth >= max_depth:
+        if attributes and ast_nodes.children:
+            # Indicate collapsed subtree
+            collapse_id = f"{ast_nodes.id}_collapsed"
+            graph.attr('node', shape='ellipse', style='filled', color='gray', fillcolor='lightgray')
+            graph.node(collapse_id, '...')
+            graph.edge(str(ast_nodes.id), collapse_id)
+        return graph
+
+    # Recurse into children
+    for child in ast_nodes.children:
+        graph.edge(str(ast_nodes.id), str(child.id))
+        _produce_ast_limited(child, attributes, max_depth, current_depth + 1, graph)
+        if attributes:
+            append_leaf_attr(child, graph)
+    return graph
+
+
+def _produce_ast_semantic(node, attributes, graph, collapse_concepts, include_summaries=False):
+    """Produce AST with semantic node collapse and optional summaries."""
+    graph.attr('node', color='black', style='filled', fillcolor='white')
+    # Build label with name, concept, and optional summary
+    concept = getattr(node, 'concept', None)
+    parts = [node.name + (f" ({concept})" if concept else "")]
+    if include_summaries:
+        summary = getattr(node, 'summary', None)
+        if summary:
+            parts.append(summary)
+    label = "\n".join(parts)
+    graph.node(str(node.id), label)
+
+    for child in getattr(node, 'children', []):
+        # If child's concept is in the collapse list, replace subtree with placeholder
+        child_concept = getattr(child, 'concept', None)
+        if collapse_concepts and child_concept in collapse_concepts:
+            placeholder_id = f"{child.id}_placeholder"
+            graph.attr('node', shape='ellipse', style='filled', fillcolor='lightgray', color='gray')
+            graph.node(placeholder_id, '...')
+            graph.edge(str(node.id), placeholder_id)
+            continue
+
+        graph.attr('node', color='black', style='filled', fillcolor='white')
+        graph.attr('edge', color='black')
+        graph.edge(str(node.id), str(child.id))
+        _produce_ast_semantic(child, attributes, graph, collapse_concepts, include_summaries)
+        if attributes:
+            append_leaf_attr(child, graph)
+    return graph
+
+
+# Backward-compatible wrapper with new zoom capability
+
+def draw_ast(ast_nodes, attributes=False, save_path=None, format='pdf', max_depth=None, collapse_concepts=None, summaries=False):
+    """
+    Plot an AST with optional zoom-level (depth limitation).
+
+    Parameters
+    ----------
+    ast_nodes : Node
+        Output of ast_to_ast_nodes(<ast>, ast_nodes=Node('Program')).
+    attributes : bool, optional
+        Whether to display the leaf attributes or not, by default False.
+    save_path : str, optional
+        File path prefix for the rendered output. If None, will open a viewer window.
+    format : str, optional
+        Output format passed to Graphviz (pdf, svg, png, ...). Default 'pdf'.
+    max_depth : int, optional
+        Maximum depth to traverse. None means full depth (no zoom).
+    collapse_concepts : list, optional
+        List of concepts to collapse.
+    summaries : bool, optional
+        Whether to include summaries in the AST.
     """
 
-    dot = produce_ast(ast_nodes, attributes)
+    # Semantic collapse by concept + optional summaries
+    if collapse_concepts:
+        dot = graphviz.Graph(comment='AST (semantic collapse)')
+        _produce_ast_semantic(ast_nodes, attributes, dot, collapse_concepts, include_summaries=summaries)
+    elif max_depth is not None:
+        dot = graphviz.Graph(comment='AST (zoomed)')
+        _produce_ast_limited(ast_nodes, attributes, max_depth, 0, dot)
+    else:
+        # Full AST, optionally include summaries
+        if summaries:
+            # reuse semantic printer without collapse
+            dot = graphviz.Graph(comment='AST (with summaries)')
+            _produce_ast_semantic(ast_nodes, attributes, dot, collapse_concepts=[], include_summaries=True)
+        else:
+            dot = produce_ast(ast_nodes, attributes)
+
     if save_path is None:
         dot.view()
     else:
-        # Render to both PDF and EPS formats
-        dot.render(save_path, view=False, format='pdf')
-        dot.render(save_path, view=False, format='eps')
+        dot.render(save_path, view=False, format=format)
+        if format != 'eps':
+            dot.render(save_path, view=False, format='eps')
     dot.clear()
 
 
@@ -188,7 +269,7 @@ def produce_cfg_one_child(child, data_flow, attributes,
     return graph
 
 
-def draw_cfg(cfg_nodes, attributes=False, save_path=None):
+def draw_cfg(cfg_nodes, attributes=False, save_path=None, format='pdf'):
     """
         Plot a CFG.
 
@@ -200,6 +281,8 @@ def draw_cfg(cfg_nodes, attributes=False, save_path=None):
             Path of the file to store the CFG in.
         - attributes: bool
             Whether to display the leaf attributes or not. Default: False.
+        - format: str
+            Format to save the graph in ('pdf', 'svg', 'png', etc). Default: 'pdf'.
     """
 
     dot = graphviz.Digraph()
@@ -208,12 +291,14 @@ def draw_cfg(cfg_nodes, attributes=False, save_path=None):
     if save_path is None:
         dot.view()
     else:
-        dot.render(save_path, view=False)
-        graphviz.render(filepath=save_path, engine='dot', format='eps')
+        dot.render(save_path, view=False, format=format)
+        # For backward compatibility, also render to EPS
+        if format != 'eps':
+            graphviz.render(filepath=save_path, engine='dot', format='eps')
     dot.clear()
 
 
-def draw_pdg(dfg_nodes, attributes=False, save_path=None):
+def draw_pdg(dfg_nodes, attributes=False, save_path=None, format='pdf'):
     """
         Plot a PDG.
 
@@ -225,6 +310,8 @@ def draw_pdg(dfg_nodes, attributes=False, save_path=None):
             Path of the file to store the PDG in.
         - attributes: bool
             Whether to display the leaf attributes or not. Default: False.
+        - format: str
+            Format to save the graph in ('pdf', 'svg', 'png', etc). Default: 'pdf'.
     """
 
     dot = graphviz.Digraph()
@@ -233,6 +320,8 @@ def draw_pdg(dfg_nodes, attributes=False, save_path=None):
     if save_path is None:
         dot.view()
     else:
-        dot.render(save_path, view=False)
-        graphviz.render(filepath=save_path, engine='dot', format='eps')
+        dot.render(save_path, view=False, format=format)
+        # For backward compatibility, also render to EPS
+        if format != 'eps':
+            graphviz.render(filepath=save_path, engine='dot', format='eps')
     dot.clear()

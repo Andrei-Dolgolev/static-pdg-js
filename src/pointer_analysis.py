@@ -20,9 +20,9 @@
 
 import logging
 
-import js_operators
-from value_filters import get_node_computed_value, display_values
-import node as _node
+import src.js_operators as js_operators
+from src.value_filters import get_node_computed_value, display_values
+import src.node as _node
 
 
 """

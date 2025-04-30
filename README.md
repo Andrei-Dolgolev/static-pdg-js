@@ -1,101 +1,93 @@
-# static-pdg-js:
-## Static JavaScript Analysis: AST, Control Flow, Data Flow, and Pointer Analysis
+# Static PDG for JavaScript
 
+A tool for static analysis of JavaScript code that creates Abstract Syntax Trees (AST), Control Flow Graphs (CFG), and Program Dependence Graphs (PDG).
 
-## Summary
-We propose a tool to statically analyze JavaScript code.
-To this end, we build the AST (Abstract Syntax Tree) of an input JavaScript file.
-To reason about the conditions that have to be met for a specific execution path to be taken, we subsequently add control flow edges to the AST. We refer to the resulting graph as the CFG (Control Flow Graph).
-Next, to reason about variable dependencies, we add data flow edges to the CFG.
-Finally, to compute variable values, we perform a pointer analysis.
-We refer to the resulting graph as the PDG (Program Dependence Graph).
-
-Please, note that in its current state, the code is a PoC and not a fully-fledged production-ready API.
-
-
-### CFG and PDG Definitions
-We adopt a definition of the CFG that slightly differs from Allen’s as we enhance our AST with control flow edges. This way, we build a joint structure that combines control flow information with the fine-grained AST nodes and edges.
-Our PDG also slightly differs from the definition of Ferrante et al. as we chose to add data flow edges to our CFG. This way, we retain information regarding statement order and have a fine-grained representation of the data flows directly at the variable level (as we build the CFG upon the AST).  
-Additional details can be found in [my dissertation](https://publications.cispa.saarland/3471/7/fass2020thesis.pdf).
-
-### Papers based on this Tool
-
-This code has been used to statically analyze browser extensions. See DoubleX [paper](https://swag.cispa.saarland/papers/fass2021doublex.pdf) & [code](https://github.com/Aurore54F/DoubleX).  
-Preliminary versions of this code were also used to detect malicious JavaScript samples: HideNoSeek [paper](https://swag.cispa.saarland/papers/fass2019hidenoseek.pdf) & [code](https://github.com/Aurore54F/HideNoSeek) and JStap [paper](https://swag.cispa.saarland/papers/fass2019jstap.pdf) & [code](https://github.com/Aurore54F/JStap).  
-And to study JavaScript code transformation techniques: [paper](https://swag.cispa.saarland/papers/moog2021statically.pdf) & [code](https://github.com/MarM15/js-transformations).
-
-
-## Setup
+## Repository Structure
 
 ```
-install python3 # (tested with 3.7.3 and 3.7.4)
+static-pdg-js/
+├── src/               # Core source code
+├── scripts/           # CLI scripts
+├── examples/          # Usage examples
+│   └── output/        # Example visualizations
+├── docs/              # Documentation
+├── utils/             # Utility scripts
+└── tests/             # Test files
+```
 
-install nodejs
-install npm
+## Features
+
+- Parse JavaScript code using Esprima
+- Build Abstract Syntax Trees (AST)
+- Generate Control Flow Graphs (CFG)
+- Create Program Dependence Graphs (PDG) with data flow analysis
+- Visualize the different graph types as PDFs, SVGs, or PNG images
+- Analyze JavaScript dependencies and variable relationships
+
+## Installation
+
+### Prerequisites
+
+- Python 3.7+
+- Node.js and npm
+- Graphviz (for visualization)
+
+### Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/static-pdg-js.git
+cd static-pdg-js
+
+# Install the package in development mode
+pip install -e .
+
+# Install Node.js dependencies
 cd src
-npm install esprima # (tested with 4.0.1)
-npm install escodegen # (tested with 1.14.2 and 2.0.0)
+npm install esprima escodegen
 ```
 
-To install graphviz (for drawing AST, CFG, and PDG graphs)
-```
-pip3 install graphviz
-On MacOS: install brew and then brew install graphviz
-On Linux: sudo apt-get install graphviz
-```
+## Quick Start
 
-### Visualizing AST, CFG, and PDG
+```bash
+# Generate all graphs (AST, CFG, PDG) for a JavaScript file
+python scripts/visualize_js.py path/to/your/file.js
 
-The tool provides functionality to visualize the Abstract Syntax Tree (AST), Control Flow Graph (CFG), and Program Dependence Graph (PDG):
+# Generate specific graph types
+python scripts/visualize_js.py path/to/your/file.js --ast --cfg
 
-```python
-from src.display_graph import draw_ast, draw_cfg, draw_pdg
-from src.build_pdg import get_data_flow
+# Generate graphs in SVG format
+python scripts/visualize_js.py path/to/your/file.js --format svg
 
-# Parse and build PDG
-pdg = get_data_flow('your_file.js', benchmarks=dict())
-
-# Draw AST
-draw_ast(pdg, attributes=True, save_path="output_ast")
-
-# Draw CFG
-draw_cfg(pdg, attributes=True, save_path="output_cfg")
-
-# Draw PDG
-draw_pdg(pdg, attributes=True, save_path="output_pdg")
+# Generate graphs in PNG format with custom output prefix
+python scripts/visualize_js.py path/to/your/file.js --format png --output my_graphs
 ```
 
-This will generate both DOT files and PDF visualizations of the graphs.
+## Documentation
 
-## Usage
+For more detailed documentation, please refer to:
 
-### Single PDG Generation
+- [Package Documentation](docs/PACKAGE.md) - Comprehensive documentation of the package
+- [VS Code Extension Guide](docs/VSCode_Extension_Guide.md) - Guide for integrating with VS Code
+- [Example Documentation](docs/SAMPLE_README.md) - Documentation for the included examples
 
-To generate the PDG of a specific *.js file, launch the following python3 commands from the `src` folder location:
-```
->>> from build_pdg import get_data_flow
->>> pdg = get_data_flow('INPUT_FILE', benchmarks=dict())
-```
+## Examples
 
-Per default, the corresponding PDG will not be stored. To store it in an **existing** PDG_PATH folder, call:
-```
-$ python3 -c "from build_pdg import get_data_flow; get_data_flow('INPUT_FILE', benchmarks=dict(), store_pdgs='PDG_PATH')"
-```
+Several example scripts are provided in the `examples/` directory:
 
-Note that we added a timeout of 10 min for the data flow/pointer analysis (cf. line 149 of `src/build_pdg.py`), and a memory limit of 20GB (cf. line 115 of `src/build_pdg.py`).
+- `sample.js` - A sample JavaScript file for visualization
+- `package_visualize.py` - Visualize JS code using the package
+- `standalone_visualize.py` - A standalone script for AST extraction
 
-### PDG Generation - Multiprocessing
-
-Let's consider a directory `DIR` containing several JavaScript files to analyze. To generate the PDGs (= ASTs enhanced with control and data flow, and pointer analysis) of all these files, launch the following shell command from the `src` folder location:
-```
-$ python3 -c "from build_pdg import store_pdg_folder; store_pdg_folder('DIR')"
-```
-
-The corresponding PDGs will be stored in `DIR/PDG`.
-
-Currently, we are using 1 CPU, but you can change that by modifying the variable NUM\_WORKERS from `src/utility_df.py` (the one **line 51**).
-
+To see the results of visualizing the sample.js file, look in `examples/output/`.
 
 ## License
 
-This project is licensed under the terms of the AGPL3 license, which you can find in ```LICENSE```.
+This project is licensed under the AGPL3 license - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+Based on research by Aurore Fass. See the original papers:
+- DoubleX [paper](https://swag.cispa.saarland/papers/fass2021doublex.pdf) & [code](https://github.com/Aurore54F/DoubleX)
+- HideNoSeek [paper](https://swag.cispa.saarland/papers/fass2019hidenoseek.pdf) & [code](https://github.com/Aurore54F/HideNoSeek)
+- JStap [paper](https://swag.cispa.saarland/papers/fass2019jstap.pdf) & [code](https://github.com/Aurore54F/JStap)

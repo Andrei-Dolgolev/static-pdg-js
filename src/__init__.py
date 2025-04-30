@@ -1,12 +1,12 @@
-from .display_graph import append_leaf_attr, produce_ast, cfg_type_node, produce_cfg_one_child
-from .extended_ast import ExtendedAst
-from .js_operators import get_node_value, get_node_computed_value, display_member_expression_value
-from .node import (
+from src.display_graph import append_leaf_attr, produce_ast, cfg_type_node, produce_cfg_one_child
+from src.extended_ast import ExtendedAst
+from src.js_operators import get_node_value, get_node_computed_value, display_member_expression_value
+from src.node import (
     Dependence, Node, Value, Identifier, ValueExpr, Statement, 
     ReturnStatement, Function, FunctionDeclaration, FunctionExpression
 )
-from .scope import Scope
-from .utility_df import UpperThresholdFilter, Timeout
+from src.scope import Scope
+from src.utility_df import UpperThresholdFilter, Timeout
 
 __all__ = [
     'append_leaf_attr', 'produce_ast', 'cfg_type_node', 'produce_cfg_one_child',
